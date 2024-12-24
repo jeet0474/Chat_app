@@ -35,9 +35,8 @@ const Home = () => {
     setIsLoading(true); // Show loader
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/get_user_connections/?username=${encodeURIComponent(
-          user.username
-        )}`
+        // `http://127.0.0.1:8000/api/get_user_connections/?username=${encodeURIComponent(user.username)}`
+        `https://chat-app-42rc.onrender.com/api/get_user_connections/?username=${encodeURIComponent(user.username)}`
       );
       const data = await response.json();
       if (data.connections) {
@@ -63,7 +62,8 @@ const Home = () => {
     setIsLoading(true); // Show loader during search
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/search_users/?query=${encodeURIComponent(searchQuery)}&current_user_id=${encodeURIComponent(user._id)}`
+        // `http://127.0.0.1:8000/api/search_users/?query=${encodeURIComponent(searchQuery)}&current_user_id=${encodeURIComponent(user._id)}`
+        `https://chat-app-42rc.onrender.com/api/search_users/?query=${encodeURIComponent(searchQuery)}&current_user_id=${encodeURIComponent(user._id)}`
       );
       const data = await response.json();
       const formattedResults = formatConnections(data);

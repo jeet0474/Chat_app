@@ -31,7 +31,8 @@ const ChatWindow = ({ selectedConnection, user, reloadConnections }) => {
 
     const initializeWebSocket = async () => {
       try {
-        const wsUrl = `ws://localhost:8000/ws/chat/?user_id=${user._id}&other_user_id=${selectedConnection.connectionId}`;
+        // const wsUrl = `ws://localhost:8000/ws/chat/?user_id=${user._id}&other_user_id=${selectedConnection.connectionId}`;
+        const wsUrl = `wss://chat-app-42rc.onrender.com/ws/chat/?user_id=${user._id}&other_user_id=${selectedConnection.connectionId}`;
         console.log("Connecting to WebSocket:", wsUrl);
 
         ws = new WebSocket(wsUrl);
