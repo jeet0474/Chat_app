@@ -1,0 +1,12 @@
+.background {
+    position: fixed; /* Ensures the background covers the viewport */
+    top: 0;
+    left: 0;
+    width: 100%; /* Full viewport width */
+    height: 100%; /* Full viewport height */
+    z-index: -1; /* Places it behind all other content */
+    background: radial-gradient(circle, #25335c, #0d1533) no-repeat,
+                linear-gradient(to bottom right, transparent 40%, #483f6c 80%);
+    background-blend-mode: multiply;
+  }
+  

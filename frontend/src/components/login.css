@@ -1,0 +1,150 @@
+/* Wrapper for the entire login section */
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: white;
+  }
+  
+  /* Title styling */
+  .title {
+    margin-top: -38px;
+    font-size: 3rem;
+    font-family: "JetBrains Mono", Monospace;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    position: relative;
+  }
+  
+  /* Animated text */
+  .animated-text {
+    display: inline-block;
+    min-width: 4ch; /* Reserve space for "24hr" */
+    text-align: left;
+    position: relative;
+  }
+  
+  /* Cursor styling */
+  .cursor {
+    position: absolute;
+    right: 0;
+    top: 0;
+    content: "|";
+    animation: blink 0.7s step-end infinite; /* Blink effect */
+  }
+  
+  /* Blink effect */
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  
+  /* Login box styling */
+  .login-box {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    padding: 30px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Input field styling */
+  .login-input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    font-size: 1rem;
+  }
+  
+  /* Button styling */
+  .login-button {
+    padding: 10px;
+    width: 50%;
+    background-color: #515050;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+  }
+  
+  .login-button:hover {
+    background-color: #393939;
+  }
+  
+  /* Style for the link inside the login page */
+  .register-link {
+    color: rgb(180, 178, 178);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .register-link:hover {
+    color: #a0a0a0;
+    text-decoration: none;
+  }
+
+  .loaderlogin {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-left: 38%;
+  }
+  
+  /* Define the spinning animation */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(350deg); }
+  }
+  
+  
+  /* Media queries for smaller screens */
+  @media (max-width: 520px), (max-height: 590px) {
+    /* Reduce title size and spacing */
+    .title {
+      font-size: 2rem;
+      margin-bottom: 50px;
+    }
+  
+    /* Adjust login box */
+    .login-box {
+      width: 90%; /* Full width on small screens */
+      padding: 20px;
+      border-radius: 15px;
+      width: 80%;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+  
+    /* Reduce input field size */
+    .login-input {
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+  
+    /* Reduce button size */
+    .login-button {
+      width: 70%;
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+  
+    /* Adjust register link */
+    .register-link {
+      font-size: 0.8rem;
+    }
+  }
+  

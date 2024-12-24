@@ -1,0 +1,94 @@
+/* Wrapper for the entire confirmation section */
+.confirmation-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 50%;
+    color: white;
+    background: rgba(0, 0, 0, 0.3); /* Background with 30% opacity */
+  }
+  
+  /* Confirmation box styling */
+  .confirmation-box {
+    background-color: rgba(0, 0, 0, 0.8); /* Solid background color */
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .confirmation-box:hover {
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Message styling */
+  .confirmation-message {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    margin-top: -8px;
+    font-family: "JetBrains Mono", Monospace;
+  }
+  
+  /* Buttons container */
+  .confirmation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  /* Button styling */
+  .confirmation-button {
+    padding: 12px 20px;
+    width: 140px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Cancel button styling */
+  .cancel-button {
+    background-color: #464444;
+    color: white;
+  }
+  
+  .cancel-button:hover {
+    background-color: #3a3838;
+  }
+  
+  /* Confirm button styling */
+  .confirm-button {
+    background-color: #701d2d;
+    color: white;
+  }
+  
+  .confirm-button:hover {
+    background-color: #56101d;
+  }
+  
+  /* Media queries for smaller screens */
+  @media (max-width: 520px), (max-height: 590px) {
+    /* Adjust confirmation box */
+    .confirmation-box {
+      width: 90%;
+      padding: 25px;
+      border-radius: 15px;
+    }
+  
+    /* Adjust message font size */
+    .confirmation-message {
+      font-size: 1.2rem;
+    }
+  
+    /* Reduce button size */
+    .confirmation-button {
+      width: 45%;
+      font-size: 1rem;
+      padding: 10px;
+    }
+  }
+  
