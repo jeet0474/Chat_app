@@ -12,7 +12,7 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development (change this for production)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Allow frontend requests from localhost:3000 (React app)
-    #"https://your-production-domain.com",  # Uncomment and replace for production
+    "https://chat-app-ivory-iota-40.vercel.app",  # Uncomment and replace for production
 ]
 
 # Middleware Configuration

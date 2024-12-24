@@ -28,7 +28,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # CORS settings (to handle cross-origin requests)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Add your frontend URL here
-    #"https://your-production-domain.com",  # Add your production URL here
+    "https://chat-app-ivory-iota-40.vercel.app",  # Add your production URL here
 ]
 
 # Allowed hosts for the application
