@@ -13,6 +13,12 @@ import os
 
 from pathlib import Path
 
+from decouple import config
+
+# MongoDB connection
+MONGO_CONNECTION_STRING = config("MONGO_CONNECTION_STRING", default="")
+MONGO_DB_NAME = config("MONGO_DB_NAME", default="")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,8 +40,8 @@ CORS_ALLOWED_ORIGINS = [
 # Allowed hosts for the application
 ALLOWED_HOSTS = []
 
-MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
-MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
+# MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
+# MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 
 # Application definition
 INSTALLED_APPS = [
