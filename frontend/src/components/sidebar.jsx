@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 
-const Sidebar = ({ onDeleteProfile, onSearchToggle, onLogout }) => {
-  const [isSearchActive, setIsSearchActive] = useState(false); // State to toggle between search and cross icon
+const Sidebar = ({ onSearchToggle, onLogout }) => {
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const handleSearchToggle = () => {
-    setIsSearchActive(!isSearchActive); // Toggle between search and cross icons
-    onSearchToggle(); // Call the onSearchToggle prop to trigger actions in the parent
+    setIsSearchActive(!isSearchActive);
+    onSearchToggle();
   };
 
   const iconSize = "30px";
 
   return (
     <div className="sidebar">
-      {/* Search Button */}
+      {/* Search Button at the Top */}
       <button onClick={handleSearchToggle} className="icon-button">
         {isSearchActive ? (
-          <span className="icon cross">✖️</span> // Cross icon
+          <span className="icon cross">✖️</span>
         ) : (
-          <span className="icon search">🔍</span> // Search icon
+          <span className="icon search">🔍</span>
         )}
       </button>
 
-      {/* Delete Profile Button */}
-      <button onClick={onDeleteProfile}>🗑️</button>
+      {/* Spacer to push logout button to the bottom */}
+      <div className="spacer"></div>
 
-      {/* Logout Button */}
-      <button onClick={onLogout}>
+      {/* Logout Button at the Bottom */}
+      <button onClick={onLogout} className="logout-button">
         <img src="/images/logout.png" alt="Logout" style={{ width: iconSize, height: iconSize }} />
       </button>
     </div>
