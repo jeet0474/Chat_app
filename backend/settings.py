@@ -47,3 +47,5 @@ INSTALLED_APPS = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 ASGI_APPLICATION = "backend.asgi.application"
+
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")

@@ -38,7 +38,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Allowed hosts for the application
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
 # MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
 # MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
