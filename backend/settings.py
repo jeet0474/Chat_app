@@ -1,7 +1,3 @@
-# MongoDB Configuration (Use djongo or mongoengine for MongoDB connection)
-# MONGO_CONNECTION_STRING = "mongodb+srv://jeet0474:Md_jeet0474@jeet.v42ik.mongodb.net/"
-# MONGO_DB_NAME = "test"
-
 import os
 
 MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
@@ -11,7 +7,7 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development (change this for production)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Allow frontend requests from localhost:3000 (React app)
+    # "http://localhost:3000",  # Allow frontend requests from localhost:3000 (React app)
     "https://chat-app-ivory-iota-40.vercel.app",  # Uncomment and replace for production
 ]
 

@@ -27,17 +27,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS settings (to handle cross-origin requests)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Add your frontend URL here
+    # "http://localhost:3000",  # Add your frontend URL here
     "https://chat-app-ivory-iota-40.vercel.app",  # Add your production URL here
 ]
 
 # Allowed hosts for the application
 ALLOWED_HOSTS = []
-
-# MongoDB settings (use environment variables for production)
-# MONGO_CONNECTION_STRING = "mongodb+srv://jeet0474:Md_jeet0474@jeet.v42ik.mongodb.net/" 
-# MONGO_DB_NAME = "test"
-
 
 MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
