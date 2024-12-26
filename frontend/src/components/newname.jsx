@@ -110,6 +110,9 @@ const NewName = () => {
       <h1 className="title">
         Chat For Next <span className="animated-text">{typedText}</span>
       </h1>
+      <p className="info-text">
+        Your account will be deleted after 24hr since the time you create it.
+      </p>
       <div className="login-box">
         <h2>Create New Account</h2>
         <form onSubmit={handleSubmit}>
