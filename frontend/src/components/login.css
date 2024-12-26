@@ -13,7 +13,6 @@
     margin-top: -38px;
     font-size: 3rem;
     font-family: "JetBrains Mono", Monospace;
-    margin-bottom: 40px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     display: inline-block;
     position: relative;
@@ -41,6 +40,14 @@
     50% {
       opacity: 0;
     }
+  }
+
+  .info-text {
+    font-size: 15px;
+    color: #efecec; /* Adjust color as needed */
+    margin-bottom: 30px; /* Adjust spacing */
+    text-align: center; /* Align center under the title */
+    margin-top: -20px;
   }
   
   /* Login box styling */
