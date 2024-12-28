@@ -96,7 +96,6 @@ imageLinks = [
 
 
 @csrf_exempt
-
 def login_user(request):
     """
     Authenticate a user and fetch their data from the MongoDB database.
@@ -123,12 +122,11 @@ def login_user(request):
 
             # Find the user by username
             user = users_collection.find_one({"username": username})
-
             if not user:
                 return JsonResponse({"error": "Invalid username or password."}, status=401)
 
             # Verify the hashed password
-            hashed_password = user.get("password").encode('utf-8')
+            hashed_password = user.get("password")
             if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
                 return JsonResponse({"error": "Invalid username or password."}, status=401)
 
@@ -136,7 +134,7 @@ def login_user(request):
             user_data = {
                 "username": user["username"],
                 "created_at": user["createdAt"].strftime("%Y-%m-%d %H:%M:%S"),
-                "_id": str(user["_id"]),  # Convert _id (ObjectId) to string
+                "_id": str(user["_id"]),  # Convert ObjectId to string
             }
 
             return JsonResponse({"message": "Login successful!", "user": user_data}, status=200)
@@ -148,9 +146,7 @@ def login_user(request):
 
     return JsonResponse({"error": "Invalid HTTP method. Only POST is allowed."}, status=405)
 
-
 @csrf_exempt
-
 def create_user(request):
     """
     Create a new user in the MongoDB database using pymongo,
@@ -167,10 +163,13 @@ def create_user(request):
             if not username or not password:
                 return JsonResponse({"error": "Username and password are required."}, status=400)
 
-            # Connect to MongoDB using pymongo
+            # Connect to MongoDB
             client = MongoClient(settings.MONGO_CONNECTION_STRING)
             db = client[settings.MONGO_DB_NAME]
             users_collection = db["users"]
+
+            # Ensure the username field is indexed
+            users_collection.create_index("username", unique=True)
 
             # Check if the username already exists
             if users_collection.find_one({"username": username}):
@@ -179,16 +178,16 @@ def create_user(request):
             # Assign a random image link to the user
             image_link = random.choice(imageLinks)
 
-            # Hash the password before storing it
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            # Hash the password with an optimized cost factor
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=10))
 
             # Create and insert the new user
             user = {
                 "username": username,
-                "password": hashed_password.decode('utf-8'),  # Store as a string
-                "image_link": image_link,  # Assign random image link to user
-                "createdAt": datetime.utcnow(),  # Use UTC for consistent timestamps
-                "connections": []  # Empty connections array (can be updated later)
+                "password": hashed_password,  # Store password as bytes
+                "image_link": image_link,
+                "createdAt": datetime.utcnow(),
+                "connections": [],  # Empty connections array (can be updated later)
             }
 
             # Insert the user into the users collection
@@ -201,7 +200,6 @@ def create_user(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid HTTP method. Only POST is allowed."}, status=405)
-
 
 
 def get_users(request):
