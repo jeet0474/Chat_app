@@ -59,29 +59,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Accept the WebSocket connection
         await self.accept()
 
-        # Load old messages from Redis or MongoDB
-        old_messages = await self.load_messages()
+        # Call update_active_users to remove user from previous chats
+        await self.update_active_users()
+
+        # Fetch old messages from Redis
+        cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
+
+        if cached_messages:
+            # If old messages exist in Redis, load them
+            # print("✅ Old messages found in Redis, using cache.")
+            self.old_messages = json.loads(cached_messages)
+        else:
+            # If no cached messages, fetch from MongoDB and store in Redis
+            # print("⚠ No old messages in Redis, fetching from MongoDB...")
+            self.old_messages = await self.load_messages()
+
+            if self.old_messages:
+                # print(f"✅ Fetched {len(self.old_messages)} messages from MongoDB, caching in Redis.")
+                await self.redis.hset(self.redis_channel, "old_messages", json.dumps(self.old_messages))
+                await self.redis.expire(self.redis_channel, 86400)  # Set TTL to 24 hours
+            # else:
+                # print("⚠ No messages found in MongoDB.")
 
         # Fetch new messages from Redis
         new_messages = await self.redis.hget(self.redis_channel, "new_messages")
-
-        # Safely handle new_messages (default to an empty list if not found or invalid)
         try:
-            new_messages_list = json.loads(new_messages) if new_messages else []
+            self.new_messages_list = json.loads(new_messages) if new_messages else []
         except json.JSONDecodeError:
-            new_messages_list = []
+            self.new_messages_list = []
 
         # Combine old and new messages
-        all_messages = old_messages + new_messages_list
-
-        # Cache combined messages in Redis
-        await self.redis.hset(self.redis_channel, "old_messages", json.dumps(all_messages))
-        
-        # Set TTL of 24 hours (86400 seconds) for the Redis key
-        await self.redis.expire(self.redis_channel, 86400)
-
-        # Update active users (clear previous active status)
-        await self.update_active_users()
+        all_messages = self.old_messages + self.new_messages_list
 
         # Send combined messages to the frontend
         await self.send(json.dumps({"type": "old_messages", "messages": all_messages}))
@@ -254,6 +262,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Load old messages from MongoDB and cache them in Redis.
         """
         try:
+            # print("🔍 Fetching messages from MongoDB...")
+
             # Fetch conversation from MongoDB
             conversation = await asyncio.to_thread(
                 self.conversations_collection.find_one,
@@ -266,6 +276,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             if not conversation or "messages" not in conversation:
+                # print("❌ No messages found in MongoDB.")
                 return []
 
             # Process messages
@@ -277,10 +288,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
                 for msg in conversation["messages"]
             ]
+            
+            # print(f"✅ Retrieved {len(old_messages)} messages from MongoDB.")
             return old_messages
+
         except Exception as e:
-            print(f"Error loading messages: {e}")
+            # print(f"❌ Error loading messages from MongoDB: {e}")
             return []
+
 
     async def update_active_users(self, remove_user=False):
         """
