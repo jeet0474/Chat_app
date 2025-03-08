@@ -67,7 +67,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if cached_messages:
             # If old messages exist in Redis, load them
-            # print("✅ Old messages found in Redis, using cache.")
             self.old_messages = json.loads(cached_messages)
         else:
             # If no cached messages, fetch from MongoDB and store in Redis
@@ -75,11 +74,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.old_messages = await self.load_messages()
 
             if self.old_messages:
-                # print(f"✅ Fetched {len(self.old_messages)} messages from MongoDB, caching in Redis.")
                 await self.redis.hset(self.redis_channel, "old_messages", json.dumps(self.old_messages))
                 await self.redis.expire(self.redis_channel, 86400)  # Set TTL to 24 hours
-            # else:
-                # print("⚠ No messages found in MongoDB.")
 
         # Fetch new messages from Redis
         new_messages = await self.redis.hget(self.redis_channel, "new_messages")
@@ -262,8 +258,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Load old messages from MongoDB and cache them in Redis.
         """
         try:
-            # print("🔍 Fetching messages from MongoDB...")
-
             # Fetch conversation from MongoDB
             conversation = await asyncio.to_thread(
                 self.conversations_collection.find_one,
@@ -276,7 +270,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             if not conversation or "messages" not in conversation:
-                # print("❌ No messages found in MongoDB.")
                 return []
 
             # Process messages
@@ -289,11 +282,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 for msg in conversation["messages"]
             ]
             
-            # print(f"✅ Retrieved {len(old_messages)} messages from MongoDB.")
             return old_messages
 
         except Exception as e:
-            # print(f"❌ Error loading messages from MongoDB: {e}")
             return []
 
 
