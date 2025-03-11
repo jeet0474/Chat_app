@@ -65,12 +65,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Fetch old messages from Redis
         cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
 
-        if cached_messages:
+                # Check if old messages already exist in Redis
+        key_exists = await self.redis.hexists(self.redis_channel, "old_messages")
+
+        if key_exists:
             # If old messages exist in Redis, load them
+            cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
             self.old_messages = json.loads(cached_messages)
         else:
             # If no cached messages, fetch from MongoDB and store in Redis
-            # print("⚠ No old messages in Redis, fetching from MongoDB...")
             self.old_messages = await self.load_messages()
 
             if self.old_messages:
@@ -217,42 +220,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Update Redis with new messages
         await self.redis.hset(self.redis_channel, "new_messages", json.dumps(new_messages_list))
 
-    async def update_connections(self, user_id, other_user_id):
-        """
-        Update the connections array for both users in the users collection.
-        This ensures both users have each other in their connections array.
-        """
-        # Get user details (names, images, etc.) - assuming you already have these fields available
-        user = await asyncio.to_thread(self.db["users"].find_one, {"_id": ObjectId(user_id)})
-        other_user = await asyncio.to_thread(self.db["users"].find_one, {"_id": ObjectId(other_user_id)})
-
-        if user and other_user:
-            user_connection = {
-                "connectionId": ObjectId(other_user["_id"]),
-                "connectionName": other_user["username"],
-                "image_link": other_user["image_link"]
-            }
-
-            other_user_connection = {
-                "connectionId": ObjectId(user["_id"]),
-                "connectionName": user["username"],
-                "image_link": user["image_link"]
-            }
-
-            # Update the connections array in both users' documents
-            await asyncio.to_thread(
-                self.db["users"].update_one,
-                {"_id": ObjectId(user_id)},
-                {"$push": {"connections": user_connection}}
-            )
-
-            await asyncio.to_thread(
-                self.db["users"].update_one,
-                {"_id": ObjectId(other_user_id)},
-                {"$push": {"connections": other_user_connection}}
-            )
-
-
     async def load_messages(self):
         """
         Load old messages from MongoDB and cache them in Redis.
@@ -287,7 +254,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             return []
 
+    async def append_messages_to_mongo(self, new_messages_list):
+        """
+        Append new messages to the MongoDB conversation.
+        """
+        try:
+            # Search for the conversation between the users in MongoDB
+            conversation = await asyncio.to_thread(
+                self.conversations_collection.find_one,
+                {
+                    "$or": [
+                        {"user1": ObjectId(self.user_id), "user2": ObjectId(self.other_user_id)},
+                        {"user1": ObjectId(self.other_user_id), "user2": ObjectId(self.user_id)},
+                    ]
+                }
+            )
 
+            if conversation:
+                # Append new messages to the existing conversation document
+                await asyncio.to_thread(
+                    self.conversations_collection.update_one,
+                    {
+                        "_id": conversation["_id"]
+                    },
+                    {
+                        "$push": {"messages": {"$each": new_messages_list}}
+                    }
+                )
+
+            # Clear the Redis "new_messages" cache for this conversation after appending to MongoDB
+            await self.redis.hdel(self.redis_channel, "new_messages")
+        except Exception as e:
+            print(f"Error appending messages to MongoDB: {e}")
+            
     async def update_active_users(self, remove_user=False):
         """
         Update active users in Redis.
@@ -335,38 +334,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.redis.hset(self.redis_channel, "active_users", json.dumps(active_users_list))
         except Exception as e:
             print(f"Error updating active users: {e}")
-
-
-
-    async def append_messages_to_mongo(self, new_messages_list):
+            
+    async def update_connections(self, user_id, other_user_id):
         """
-        Append new messages to the MongoDB conversation.
+        Update the connections array for both users in the users collection.
+        This ensures both users have each other in their connections array.
         """
-        try:
-            # Search for the conversation between the users in MongoDB
-            conversation = await asyncio.to_thread(
-                self.conversations_collection.find_one,
-                {
-                    "$or": [
-                        {"user1": ObjectId(self.user_id), "user2": ObjectId(self.other_user_id)},
-                        {"user1": ObjectId(self.other_user_id), "user2": ObjectId(self.user_id)},
-                    ]
-                }
+        # Get user details (names, images, etc.) - assuming you already have these fields available
+        user = await asyncio.to_thread(self.db["users"].find_one, {"_id": ObjectId(user_id)})
+        other_user = await asyncio.to_thread(self.db["users"].find_one, {"_id": ObjectId(other_user_id)})
+
+        if user and other_user:
+            user_connection = {
+                "connectionId": ObjectId(other_user["_id"]),
+                "connectionName": other_user["username"],
+                "image_link": other_user["image_link"]
+            }
+
+            other_user_connection = {
+                "connectionId": ObjectId(user["_id"]),
+                "connectionName": user["username"],
+                "image_link": user["image_link"]
+            }
+
+            # Update the connections array in both users' documents
+            await asyncio.to_thread(
+                self.db["users"].update_one,
+                {"_id": ObjectId(user_id)},
+                {"$push": {"connections": user_connection}}
             )
 
-            if conversation:
-                # Append new messages to the existing conversation document
-                await asyncio.to_thread(
-                    self.conversations_collection.update_one,
-                    {
-                        "_id": conversation["_id"]
-                    },
-                    {
-                        "$push": {"messages": {"$each": new_messages_list}}
-                    }
-                )
-
-            # Clear the Redis "new_messages" cache for this conversation after appending to MongoDB
-            await self.redis.hdel(self.redis_channel, "new_messages")
-        except Exception as e:
-            print(f"Error appending messages to MongoDB: {e}")
+            await asyncio.to_thread(
+                self.db["users"].update_one,
+                {"_id": ObjectId(other_user_id)},
+                {"$push": {"connections": other_user_connection}}
+            )
