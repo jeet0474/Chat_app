@@ -63,9 +63,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.update_active_users()
 
         # Fetch old messages from Redis
-        cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
+        # cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
 
-                # Check if old messages already exist in Redis
+        # Check if old messages already exist in Redis
         key_exists = await self.redis.hexists(self.redis_channel, "old_messages")
 
         if key_exists:
