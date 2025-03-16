@@ -65,13 +65,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Fetch old messages from Redis
         # cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
 
-        # Check if old messages already exist in Redis
-        key_exists = await self.redis.hexists(self.redis_channel, "old_messages")
+        # Check if the Redis key exists
+        key_exists = await self.redis.exists(self.redis_channel)
 
         if key_exists:
-            # If old messages exist in Redis, load them
-            cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
-            self.old_messages = json.loads(cached_messages)
+            # Now check if "old_messages" exists within the hash
+            old_messages_exists = await self.redis.hexists(self.redis_channel, "old_messages")
+
+            if old_messages_exists:
+                cached_messages = await self.redis.hget(self.redis_channel, "old_messages")
+                self.old_messages = json.loads(cached_messages) if cached_messages else []
+            else:
+                self.old_messages = []  # Key exists, but "old_messages" is missing
         else:
             # If no cached messages, fetch from MongoDB and store in Redis
             self.old_messages = await self.load_messages()
