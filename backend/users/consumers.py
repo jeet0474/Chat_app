@@ -13,24 +13,24 @@ import os
 from decouple import config
 
 # MongoDB connection
-MONGO_CONNECTION_STRING = config("MONGO_CONNECTION_STRING", default="")
-MONGO_DB_NAME = config("MONGO_DB_NAME", default="")
+# MONGO_CONNECTION_STRING = config("MONGO_CONNECTION_STRING", default="")
+# MONGO_DB_NAME = config("MONGO_DB_NAME", default="")
 
 # Load environment variables from .env file
 # load_dotenv()
 
 # MongoDB Configuration
-# MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
-# MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
+MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 
 # Redis Configuration
-# REDIS_HOST = os.getenv("REDIS_HOST")
-# REDIS_PORT = int(os.getenv("REDIS_PORT"))
-# REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
-REDIS_HOST = config("REDIS_HOST", default="localhost")
-REDIS_PORT = config("REDIS_PORT", default="6379")
-REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
+# REDIS_HOST = config("REDIS_HOST", default="localhost")
+# REDIS_PORT = config("REDIS_PORT", default="6379")
+# REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
