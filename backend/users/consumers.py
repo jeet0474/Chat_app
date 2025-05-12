@@ -224,6 +224,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Update Redis with new messages
         await self.redis.hset(self.redis_channel, "new_messages", json.dumps(new_messages_list))
+        await self.redis.expire(self.redis_channel, 86400)  # Reset TTL to 24 hours
 
     async def load_messages(self):
         """
