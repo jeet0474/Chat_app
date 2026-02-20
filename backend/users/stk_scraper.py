@@ -25,7 +25,7 @@ def create_session_with_retries(max_retries=3, backoff_factor=0.3):
     retry_strategy = Retry(
         total=max_retries,
         status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["GET"],
+        allowed_methods=["GET"],  # Changed from method_whitelist
         backoff_factor=backoff_factor
     )
     
