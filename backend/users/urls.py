@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import create_user, get_users, search_users, get_user_connections, login_user
+from .views import create_user, get_users, search_users, get_user_connections, login_user, get_stock_price
 # from .views import create_user, get_users, search_users, get_user_connections, login_user, get_conversation_messages, handle_conversation_and_message, get_conversation, remove_active_user
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path("get_users/", get_users, name="get_users"),
     path("search_users/", search_users, name="search_users"),
     path("get_user_connections/", get_user_connections, name="get_user_connections"),
+    path("get_stock_price/", get_stock_price, name="get_stock_price"),
 ]

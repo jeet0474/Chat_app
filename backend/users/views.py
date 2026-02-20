@@ -10,7 +10,7 @@ import jwt  # For JWT token generation
 import random
 from .models import User  # Import the Conversation, User, and Message models
 import logging
-
+from .stk_scraper import get_google_finance_price
 
 imageLinks = [
     # First Set of Image links for users
@@ -349,3 +349,59 @@ def get_user_connections(request):
 
     return JsonResponse({"error": "Invalid HTTP method. Only GET is allowed."}, status=405)
 
+@csrf_exempt
+def get_stock_price(request):
+    """
+    Fetch stock price data from Google Finance.
+    GET endpoint that accepts 'stock' and 'exchange' query parameters.
+    
+    Query Parameters:
+        - stock: Stock symbol (e.g., "HINDCOPPER")
+        - exchange: Exchange code (e.g., "NSE", "BSE")
+    
+    Example: /get_stock_price/?stock=HINDCOPPER&exchange=NSE
+    """
+    if request.method == "GET":
+        try:
+            # Get query parameters
+            stock = request.GET.get("stock", "").strip()
+            exchange = request.GET.get("exchange", "").strip()
+            
+            # Validate parameters
+            if not stock:
+                return JsonResponse(
+                    {"error": "Stock symbol is required", "success": False},
+                    status=400
+                )
+            
+            if not exchange:
+                return JsonResponse(
+                    {"error": "Exchange is required", "success": False},
+                    status=400
+                )
+            
+            # Fetch stock data
+            stock_data = get_google_finance_price(stock, exchange, max_attempts=3)
+            
+            # Return response
+            if stock_data.get("success"):
+                return JsonResponse(stock_data, status=200)
+            else:
+                return JsonResponse(stock_data, status=404)
+        
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error in get_stock_price: {type(e).__name__}: {e}")
+            return JsonResponse(
+                {
+                    "error": f"Server error: {type(e).__name__}",
+                    "success": False
+                },
+                status=500
+            )
+    
+    return JsonResponse(
+        {"error": "Invalid HTTP method. Only GET is allowed.", "success": False},
+        status=405
+    )
