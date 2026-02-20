@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 import time
+import re
 from typing import Dict, Optional
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -25,7 +26,7 @@ def create_session_with_retries(max_retries=3, backoff_factor=0.3):
     retry_strategy = Retry(
         total=max_retries,
         status_forcelist=[429, 500, 502, 503, 504],
-        allowed_methods=["GET"],  # Changed from method_whitelist
+        allowed_methods=["GET"],
         backoff_factor=backoff_factor
     )
     
@@ -42,6 +43,62 @@ def safe_text(el):
     except Exception as e:
         logger.warning(f"Error extracting text from element: {e}")
         return None
+
+def clean_price(price_text: str) -> str:
+    """
+    Extract just the numeric price value, removing currency symbols.
+    Input: "₹568.90" or "\u20b9568.90"
+    Output: "568.90"
+    """
+    if not price_text:
+        return None
+    
+    # Remove currency symbols and whitespace
+    cleaned = re.sub(r'[^\d.\-]', '', price_text).strip()
+    return cleaned if cleaned else None
+
+def clean_change(change_text: str) -> str:
+    """
+    Extract change value, keeping the sign.
+    Input: "-11.22" or "- 11.22"
+    Output: "-11.22"
+    """
+    if not change_text:
+        return None
+    
+    # Remove whitespace and special characters except numbers, dot, and minus
+    cleaned = re.sub(r'[^\d.\-]', '', change_text).strip()
+    return cleaned if cleaned else None
+
+def clean_percent(percent_text: str) -> str:
+    """
+    Extract percentage value, keeping the sign.
+    Input: "+22.08%" or "+22.08"
+    Output: "+22.08%"
+    """
+    if not percent_text:
+        return None
+    
+    # Extract number with sign and add % if not present
+    match = re.search(r'([+-]?\d+\.?\d*)', percent_text)
+    if match:
+        value = match.group(1)
+        return f"{value}%" if not percent_text.endswith('%') else f"{value}%"
+    return None
+
+def clean_time(time_text: str) -> str:
+    """
+    Extract just the time part, removing disclaimer and currency info.
+    Input: "Feb 20, 3:59:57 PM GMT+5:30 · INR · NSE ·Disclaimer"
+    Output: "Feb 20, 3:59:57 PM GMT+5:30"
+    """
+    if not time_text:
+        return None
+    
+    # Split on bullet point or dash and take first part
+    # Also remove "Disclaimer" text
+    cleaned = time_text.split('·')[0].split('—')[0].split('Disclaimer')[0].strip()
+    return cleaned if cleaned else None
 
 def validate_stock_input(symbol: str, exchange: str) -> tuple:
     """
@@ -115,9 +172,11 @@ def get_google_finance_price(symbol: str, exchange: str = "NSE", max_attempts: i
                 "symbol": f"{exchange}:{symbol}",
                 "name": None,
                 "price": None,
+                "currency": "INR",
                 "change": None,
-                "percent": None,
-                "time": None,
+                "change_percent": None,
+                "market_status": "Closed",
+                "last_updated": None,
                 "timestamp": int(time.time()),
             }
             
@@ -129,30 +188,36 @@ def get_google_finance_price(symbol: str, exchange: str = "NSE", max_attempts: i
             )
             data["name"] = safe_text(name_element)
             
-            # Price - try multiple selectors
+            # Price - try multiple selectors and clean it
             price_element = (
                 soup.select_one("div.YMlKec.fxKbKc") or
                 soup.select_one("div[data-value]") or
                 soup.select_one("span[jsname='qyyzf']")
             )
-            data["price"] = safe_text(price_element)
+            price_text = safe_text(price_element)
+            data["price"] = clean_price(price_text)
             
             # Change and percentage - more robust approach
             change_spans = soup.select("span.JwB6zf, span.P2Luy")
             
             if len(change_spans) >= 2:
-                data["change"] = safe_text(change_spans[0])
-                data["percent"] = safe_text(change_spans[1])
+                change_text = safe_text(change_spans[0])
+                percent_text = safe_text(change_spans[1])
+                data["change"] = clean_change(change_text)
+                data["change_percent"] = clean_percent(percent_text)
             else:
                 # Try alternative selectors
                 change_alt = soup.select("span[role='text']")
                 if len(change_alt) >= 2:
-                    data["change"] = safe_text(change_alt[-2])
-                    data["percent"] = safe_text(change_alt[-1])
+                    change_text = safe_text(change_alt[-2])
+                    percent_text = safe_text(change_alt[-1])
+                    data["change"] = clean_change(change_text)
+                    data["change_percent"] = clean_percent(percent_text)
             
-            # Market time
+            # Market time - clean up junk
             time_element = soup.select_one("div.ygUjEc")
-            data["time"] = safe_text(time_element)
+            time_text = safe_text(time_element)
+            data["last_updated"] = clean_time(time_text)
             
             # Validate that we got at least the price
             if data["price"] is None:
